@@ -5,7 +5,7 @@
 | Capa | Tecnología | Versión mínima | Notas |
 |---|---|---|---|
 | Runtime | Node.js | >= 20 (LTS) | Sin frameworks pesados |
-| Lenguaje | JavaScript (ESM) | — | `"type": "module"` |
+| Lenguaje | JavaScript (CommonJS) | — | `require` / `module.exports` (ver regla S5) |
 | Servidor HTTP | módulo nativo `node:http` | built-in | Sin Express ni dependencias externas |
 | Persistencia | En memoria (objetos/Map) | — | Reemplazable por DB luego |
 | Tests | `node:test` (+ `node:assert`) | built-in | `node --test` |

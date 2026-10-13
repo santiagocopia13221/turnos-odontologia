@@ -1,6 +1,6 @@
 {
   "version": 4,
-  "step": "find-skill",
+  "step": "done",
   "owner": "active-orchestrator",
   "discovery": {
     "created_by": "discovery-research",
@@ -189,5 +189,33 @@
       }
     ],
     "installed": []
+  },
+  "registry": {
+    "created_by": "skill-registry",
+    "file": ".atl/skill-registry.md"
+  },
+  "agents": {
+    "created_by": "agent-instruction",
+    "files": [
+      "CLAUDE.md",
+      "AGENTS.md"
+    ],
+    "reglas_aplicadas": [
+      "U1",
+      "U2",
+      "U3",
+      "U4",
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S5",
+      "D1",
+      "D2",
+      "D3",
+      "D4",
+      "D5",
+      "D6"
+    ]
   }
 }
