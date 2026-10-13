@@ -112,7 +112,7 @@ Paso │ Agente A (Dominio Core)     │ Agente B (Datos y Catálogo)  │ Agent
 > El dominio es puro (`domain/*`, sin IO) y se construye antes que la API (dominio → API → jobs → integraciones).
 
 ### [C-01] `crear-turno-sin-solapamientos`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (archivado 2026-10-13)
 - **Scope**: Núcleo mínimo del dominio: crear un turno validando solapamientos. Sin HTTP.
   - Scaffolding mínimo: `package.json` (CommonJS, sin `"type": "module"`), estructura `src/domain`, `src/application`, `src/infrastructure`, `tests/`
   - Entidades: `Profesional`, `Sillon`, `Prestacion` (con `duracionMinutos > 0`), `Paciente`, `Turno`
@@ -121,7 +121,7 @@ Paso │ Agente A (Dominio Core)     │ Agente B (Datos y Catálogo)  │ Agent
   - `application/turnosService.crearTurno()` recibe repos inyectados
   - `infrastructure/repos/inMemoryRepos.js`: `ProfesionalRepo`, `SillonRepo`, `PrestacionRepo`, `PacienteRepo`, `TurnoRepo`
   - Seed mínimo: 2 profesionales, 3 sillones, 4 prestaciones (ver 04 §Seed data)
-  - Tests: `test/reglas.test.js` — casos límite de solapamiento (borde `[inicio, fin)`), duración derivada, creación OK; `test/turnos.test.js` — crearTurno feliz + rechazos por profesional/sillón/paciente ocupado
+  - Tests: `tests/reglas.test.js` — casos límite de solapamiento (borde `[inicio, fin)`), duración derivada, creación OK; `tests/turnos.test.js` — crearTurno feliz + rechazos por profesional/sillón/paciente ocupado
 - **Dependencias**: ninguna
 - **Governance**: CRITICO
 - **Leer antes**:
