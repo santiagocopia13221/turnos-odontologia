@@ -1,4 +1,31 @@
-# Informe de Discovery — Investigación de mercado de software de gestión odontológica
+<div class="portada">
+
+# Informe de Discovery
+
+## Sistema de gestión de turnos y agenda de pacientes para consultorios odontológicos (Argentina)
+
+**Materia:** Metodología I
+
+**Carrera:** Tecnicatura Universitaria en Programación — UTN
+
+**Integrante:** Santiago Copia
+
+**Fecha:** 13 de octubre de 2026
+
+</div>
+
+<div style="page-break-after: always;"></div>
+
+## Resumen ejecutivo
+
+**Qué se investigó.** Se relevaron 16 sistemas de gestión odontológica con agenda y turnos (Argentina primero, luego Latinoamérica e internacionales), a partir de sus sitios oficiales y páginas de precios. Se compararon agenda, reserva online, recordatorios, clínica, cobros, integraciones y precio, y se puntuó cada sistema con una matriz ponderada de 0 a 5. Lo que no está publicado se marcó "No evidenciado", y se distinguió la funcionalidad comprobada de la afirmación comercial.
+
+**Principales hallazgos.** Los sistemas argentinos analizados (DentalSoft, DentalSaaS, Odonto.ar, Livio, DentalCore, DoctorYa) ya ofrecen como estándar reserva online, recordatorios por WhatsApp, odontograma e integración con obras sociales o ARCA, con precios publicados en pesos o dólares. El vacío más claro es que casi todos modelan "profesional + agenda" y pocos validan de forma explícita la doble ocupación de un sillón o box. Tampoco suelen ofrecer reglas de agenda configurables sin programar (ventana de cancelación, duración por prestación, franjas y bloqueos). Las cifras de reducción de ausentismo y de cantidad de clínicas son afirmaciones comerciales y no se tomaron como benchmark.
+
+**MVP recomendado.** Reserva online sin login; agenda diaria por profesional y por sillón; prevención de solapamientos (mismo profesional y mismo sillón); duración variable por prestación; cancelación y reprogramación con mínimo de 24 horas; recordatorios por WhatsApp; franjas de atención y bloqueos. Quedan para etapas posteriores la facturación ARCA, obras sociales, cobros online, historia clínica completa, IA y multi-sucursal. El primer change implementado sobre este MVP fue "crear turno sin solapamientos".
+
+<div style="page-break-after: always;"></div>
+
 
 **Proyecto**: turnos-odontologia (consultorio con varios profesionales y varios sillones/boxes)
 **Fecha del informe**: 2026-10-13
@@ -249,3 +276,36 @@ dentidesk.cl · dentalware.cl · bilog.com.ar · clinia.com.ar · axismed.com.ar
 turnito.app · reservasimple.com · iturnos.ar
 
 Detalle de la auditoría URL por URL en `docs/discovery/checklist.md`.
+
+<div style="page-break-after: always;"></div>
+
+## Verificación de fuentes
+
+**Qué se hizo.** Después de que el agente generó el informe, abrí personalmente en el navegador las 16 URLs oficiales citadas. Las 16 cargan y corresponden al sistema indicado. Además, para los 6 primeros sistemas (los argentinos) comparé lo que el informe afirma (planes, precios, funcionalidades) contra lo que dice la página, y coincidía.
+
+**Alcance honesto.** Para los sistemas 7 a 16 verifiqué que la URL existe y corresponde al producto, pero no contrasté afirmación por afirmación (precios, funcionalidades) del informe contra cada página. Los datos de esos sistemas deben tomarse como "abiertos por el agente, URL confirmada por el estudiante". Las cifras de ausentismo y de cantidad de clínicas son afirmaciones comerciales del proveedor y no fueron verificadas de forma independiente.
+
+| # | Sistema | URL | ¿Abre y corresponde? | ¿Afirmaciones contrastadas con la página? | Corrección |
+|---|---|---|---|---|---|
+| 1 | DentalSoft | https://www.dentalsoft.com.ar/ | Sí | Sí, coincide | Ninguna |
+| 2 | DentalSaaS | https://dental.delriotech.com.ar/ | Sí | Sí, coincide | Ninguna |
+| 3 | Odonto.ar | https://odonto.ar/ | Sí | Sí, coincide | Ninguna |
+| 4 | Livio | https://www.liviodental.com/ | Sí | Sí, coincide | Ninguna |
+| 5 | DentalCore | https://dentalcore.app/ | Sí | Sí, coincide | Ninguna |
+| 6 | DoctorYa | https://doctorya.com.ar/ | Sí | Sí, coincide | Ninguna |
+| 7 | Dentiqa | https://dentiqa.app/ | Sí | No contrastado | Ninguna |
+| 8 | Dentalink | https://www.softwaredentalink.com/ | Sí | No contrastado | Ninguna |
+| 9 | Mi Agenda Dental | https://miagendadental.com/ | Sí | No contrastado | Ninguna |
+| 10 | Agenda Clínica | https://www.agendaclinicas.cl/ | Sí | No contrastado | Ninguna |
+| 11 | Simples Dental | https://www.simplesdental.com/ | Sí | No contrastado | Ninguna |
+| 12 | Clinicorp | https://clinicorp.com/ | Sí | No contrastado | Ninguna |
+| 13 | Dentally | https://www.dentally.com/en-gb/pricing | Sí | No contrastado | Ninguna |
+| 14 | Curve Dental | https://www.curvedental.com/ | Sí | No contrastado | Ninguna |
+| 15 | Open Dental | https://www.opendental.com/ | Sí | No contrastado | Ninguna |
+| 16 | Cliniko | https://www.cliniko.com/pricing | Sí | No contrastado | Ninguna |
+
+**Hallazgos durante la revisión.** Antes de aprobar el Discovery, el agente había asumido un consultorio de un solo profesional y había entregado solo el checklist sin investigación de mercado; ambas cosas se corrigieron con la opción Ajustar. En la knowledge-base se agregaron además los puntos "No evidenciado" a las preguntas abiertas.
+
+## Referencias
+
+Las fuentes consultadas (fecha de consulta 2026-10-13) son las 16 URLs oficiales de la tabla anterior. Las fuentes que no se abrieron en la sesión figuran como "No evidenciado" en la sección de fuentes del informe.
