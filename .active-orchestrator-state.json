@@ -1,0 +1,137 @@
+{
+  "version": 4,
+  "step": "roadmap",
+  "owner": "active-orchestrator",
+  "discovery": {
+    "created_by": "discovery-research",
+    "market_research": "docs/discovery/informe-discovery.md",
+    "sources": [
+      "https://www.dentalsoft.com.ar/",
+      "https://dental.delriotech.com.ar/",
+      "https://odonto.ar/",
+      "https://www.liviodental.com/",
+      "https://dentalcore.app/",
+      "https://doctorya.com.ar/",
+      "https://dentiqa.app/",
+      "https://www.softwaredentalink.com/",
+      "https://miagendadental.com/",
+      "https://www.agendaclinicas.cl/",
+      "https://www.simplesdental.com/",
+      "https://clinicorp.com/",
+      "https://www.dentally.com/en-gb/pricing",
+      "https://www.curvedental.com/",
+      "https://www.opendental.com/",
+      "https://www.cliniko.com/pricing"
+    ],
+    "competitors": [
+      "DentalSaaS (AR)",
+      "DentalSoft (AR)",
+      "DentalCore (AR/LatAm)",
+      "Livio (AR)",
+      "DoctorYa (AR)",
+      "Dentiqa (LatAm/AR)",
+      "Odonto.ar (AR)",
+      "Dentalink (CL/LatAm)",
+      "Mi Agenda Dental (MX)",
+      "Agenda Clínica (CL)",
+      "Simples Dental (BR)",
+      "Clinicorp (BR)",
+      "Dentally (UK)",
+      "Curve Dental (US)",
+      "Open Dental (US)",
+      "Cliniko (AU)"
+    ],
+    "problema": "Consultorio odontológico con varios profesionales y sillones coordina turnos a mano (teléfono/WhatsApp/planilla), generando tiempo perdido, pacientes sin visibilidad de la disponibilidad real y riesgo de solapamientos (mismo profesional o mismo sillón).",
+    "usuarios": ["Paciente", "Recepcionista / administrativo", "Odontólogo / profesional"],
+    "casos_de_uso": [
+      "Como paciente, quiero reservar un turno online para no depender del horario de atención ni llamar.",
+      "Como paciente, quiero cancelar o reagendar mi turno (con anticipación mínima) para liberar el horario.",
+      "Como odontólogo, quiero ver mi agenda del día para saber qué pacientes tengo y a qué hora.",
+      "Como recepcionista, quiero ver la agenda del día por profesional y por sillón para gestionar la carga.",
+      "Como recepcionista, quiero cargar un turno manualmente para los pacientes que llegan o llaman."
+    ],
+    "funcionalidades_necesarias": [
+      "Reserva de turno online por parte del paciente",
+      "Cancelación y reprogramación de turnos",
+      "Datos básicos del paciente (nombre + teléfono, sin login)",
+      "Agenda diaria por profesional y por sillón",
+      "Recordatorios de turno por WhatsApp"
+    ],
+    "funcionalidades_opcionales": ["Historia clínica / odontograma", "Pagos online / señas"],
+    "reglas_de_negocio": [
+      "No se puede cancelar un turno con menos de 24 horas de anticipación",
+      "Un profesional no puede tener dos turnos superpuestos",
+      "Un sillón/box no puede tener dos turnos superpuestos",
+      "Cada turno tiene duración variable según la prestación",
+      "La agenda respeta franjas horarias de atención por día (bloqueo de almuerzo)",
+      "Un paciente no puede tener dos turnos a la misma hora"
+    ],
+    "integraciones": ["WhatsApp / mensajería (recordatorios de turno, dentro del MVP)"],
+    "restricciones": [
+      "Tiene que andar bien en celular",
+      "Presupuesto acotado"
+    ],
+    "riesgos": [
+      "Agenda desactualizada que aumenta las inasistencias (preocupación principal)",
+      "Asignación de sillón mal modelada → doble ocupación de un box",
+      "Supuesto sin probar: que los pacientes adopten la reserva online en vez de llamar",
+      "Supuesto sin probar: que la recepción mantenga la agenda cargada y al día"
+    ],
+    "preguntas_abiertas": [
+      "¿Multi-sucursal a futuro? ¿Modelo multi-tenant desde el día 1?",
+      "¿Quién define la duración por prestación y dónde se administra?",
+      "¿La asignación de sillón la hace el sistema (automática) o la recepción (manual)?",
+      "¿Cómo se manejan feriados y excepciones de agenda?"
+    ]
+  },
+  "kb": {
+    "created_by": "kb-creator",
+    "source": "interactive",
+    "discovery": {
+      "problem": "Un consultorio odontológico con varios profesionales y sillones coordina los turnos de forma manual (teléfono/WhatsApp/planilla), lo que genera tiempo perdido, falta de visibilidad de la disponibilidad real y riesgo de solapamiento del mismo profesional o sillón.",
+      "system_type": "api",
+      "domain": "salud (gestión de turnos odontológicos)",
+      "scale": "team",
+      "stack": "Node.js (API HTTP con node:http) + base de datos en memoria + tests con node:test",
+      "needs_infra": true
+    },
+    "files": [
+      "knowledge-base/README.md",
+      "knowledge-base/01_vision_y_objetivos.md",
+      "knowledge-base/02_descripcion_general.md",
+      "knowledge-base/03_actores_y_roles.md",
+      "knowledge-base/04_modelo_de_datos.md",
+      "knowledge-base/05_reglas_de_negocio.md",
+      "knowledge-base/06_funcionalidades.md",
+      "knowledge-base/07_flujos_principales.md",
+      "knowledge-base/08_arquitectura_propuesta.md",
+      "knowledge-base/09_decisiones_y_supuestos.md",
+      "knowledge-base/10_preguntas_abiertas.md"
+    ]
+  },
+  "roadmap": {
+    "created_by": "roadmap-generator",
+    "changes_file": "CHANGES.md",
+    "source": "CHANGES.md",
+    "changes": [
+      "C-01",
+      "C-02",
+      "C-03",
+      "C-04",
+      "C-05",
+      "C-06",
+      "C-07",
+      "C-08",
+      "C-09",
+      "C-10",
+      "C-11",
+      "C-12",
+      "C-13",
+      "C-14",
+      "C-15",
+      "C-16",
+      "C-17",
+      "C-18"
+    ]
+  }
+}
