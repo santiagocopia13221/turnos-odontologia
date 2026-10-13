@@ -1,6 +1,6 @@
 {
   "version": 4,
-  "step": "roadmap",
+  "step": "find-skill",
   "owner": "active-orchestrator",
   "discovery": {
     "created_by": "discovery-research",
@@ -133,5 +133,61 @@
       "C-17",
       "C-18"
     ]
+  },
+  "skills": {
+    "created_by": "find-skill",
+    "recommended": [
+      {
+        "name": "tdd",
+        "source": "mattpocock/skills@tdd",
+        "reason": "Ciclo TDD guiado (red-green-refactor) para implementar las reglas de negocio de turnos con el runner nativo node:test."
+      },
+      {
+        "name": "domain-modeling",
+        "source": "mattpocock/skills@domain-modeling",
+        "reason": "Modela entidades e invariantes (Turno, Profesional, Sillón, Paciente) para no violar solapamientos ni franjas horarias."
+      },
+      {
+        "name": "nodejs-backend-patterns",
+        "source": "wshobson/agents@nodejs-backend-patterns",
+        "reason": "Patrones de backend Node.js: capas, handlers HTTP, validación de entrada y manejo de errores para una API node:http."
+      },
+      {
+        "name": "api-design-principles",
+        "source": "wshobson/agents@api-design-principles",
+        "reason": "Diseño de endpoints REST y convenciones para reservar/cancelar/reprogramar turnos y consultar agenda."
+      },
+      {
+        "name": "api-and-interface-design",
+        "source": "addyosmani/agent-skills@api-and-interface-design",
+        "reason": "Contratos de API claros y consistentes (nombres, status codes, payloads) para el backend de turnos."
+      },
+      {
+        "name": "fastify-best-practices",
+        "source": "mcollina/skills@fastify-best-practices",
+        "reason": "Buenas prácticas de servidores HTTP en Node.js (autor de Fastify), aplicables al hardening de la API node:http."
+      },
+      {
+        "name": "javascript-testing-patterns",
+        "source": "wshobson/agents@javascript-testing-patterns",
+        "reason": "Patrones de testing en JavaScript para cubrir casos borde de agenda, cancelaciones y solapamientos."
+      },
+      {
+        "name": "node-native-tests",
+        "source": "mateonunez/skills@node-native-tests",
+        "reason": "Específico del runner nativo node:test (coincide exacto con el stack); verificar por baja cantidad de instalaciones."
+      },
+      {
+        "name": "nodejs-best-practices",
+        "source": "sickn33/agentic-awesome-skills@nodejs-best-practices",
+        "reason": "Buenas prácticas generales de Node.js (estructura, async, errores) para un backend pequeño y mantenible."
+      },
+      {
+        "name": "code-review",
+        "source": "mattpocock/skills@code-review",
+        "reason": "Revisión de código sistemática para asegurar consistencia y calidad en cada change del roadmap."
+      }
+    ],
+    "installed": []
   }
 }
