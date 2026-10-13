@@ -114,7 +114,7 @@ Paso │ Agente A (Dominio Core)     │ Agente B (Datos y Catálogo)  │ Agent
 ### [C-01] `crear-turno-sin-solapamientos`
 - **Estado**: `[ ]` pendiente
 - **Scope**: Núcleo mínimo del dominio: crear un turno validando solapamientos. Sin HTTP.
-  - Scaffolding mínimo: `package.json` (`"type": "module"`), estructura `src/domain`, `src/application`, `src/infrastructure`, `test/`
+  - Scaffolding mínimo: `package.json` (CommonJS, sin `"type": "module"`), estructura `src/domain`, `src/application`, `src/infrastructure`, `tests/`
   - Entidades: `Profesional`, `Sillon`, `Prestacion` (con `duracionMinutos > 0`), `Paciente`, `Turno`
   - `Turno`: `id` (UUID opaco), `pacienteId`, `profesionalId`, `sillonId`, `prestacionId`, `fechaHoraInicio`, `fechaHoraFin` (derivado), `estado`, `canalReserva`
   - `domain/reglas.js` (funciones puras): solapamiento por profesional (RN-TU-01), por sillón (RN-TU-02), por paciente (RN-TU-03), duración derivada de prestación (RN-TU-04), fin = inicio + duración con intervalos semiabiertos `[inicio, fin)` (RN-TU-08)

@@ -1,0 +1,14 @@
+{
+  "name": "turnos-odontologia",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MVP de gestión de turnos odontológicos (dominio puro + API en node:http)",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

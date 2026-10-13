@@ -25,7 +25,7 @@ Restricciones que moldean el approach:
 ## Decisions
 
 ### D1 - CommonJS y scaffolding mínimo
-`package.json` sin `"type": "module"`; `require`/`module.exports`; script `"test": "node --test"`. Estructura `src/{domain,application,infrastructure}` + `test/`.
+`package.json` sin `"type": "module"`; `require`/`module.exports`; script `"test": "node --test"`. Estructura `src/{domain,application,infrastructure}` + `tests/`.
 *Alternativa considerada*: ESM (`"type": "module"`), como decía la guía original de `CHANGES.md` §C-01. **Rechazada** por la regla dura S5; se corrige esa guía en este change.
 
 ### D2 - Dominio puro con dependencias inyectadas
