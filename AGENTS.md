@@ -63,8 +63,9 @@ Cargá la skill correspondiente al contexto ANTES de escribir código.
 
 El plan de implementación completo está en [CHANGES.md](CHANGES.md). Resumen:
 
-- **Total**: 18 changes en 6 fases (13 MVP + 5 post-MVP).
+- **Total**: 19 changes en 6 fases (14 MVP + 5 post-MVP).
 - **Camino crítico** (6): `C-01 → C-02 → C-04 → C-06 → C-08 → C-09` (+ rama casi-crítica `C-12 → C-13`).
+- **Change intermedio**: `C-05b` (api-minima-turnos-openapi), entre `C-05` y `C-06`.
 - **Primer change**: `C-01` (crear-turno-sin-solapamientos).
 
 **Antes de cualquier `/opsx:propose`**: leé [CHANGES.md](CHANGES.md), identificá las dependencias del change y los archivos de "Leer antes".

@@ -29,7 +29,7 @@ C-01 crear-turno-sin-solapamientos              ← PRIMER CHANGE (dominio, sin 
   ├── C-03 pacientes-sin-login  ──┐                                                   │
   │                               ├── C-06 endpoint-crear-turno                       │
   └── C-05 servidor-http-y-router ┤                                                   │
-        ├── C-06 endpoint-crear-turno                                                 │
+        ├── C-05b api-minima-turnos-openapi ── C-06 endpoint-crear-turno              │
         ├── C-07 endpoints-consulta-y-disponibilidad                                  │
         │     └── C-10 agenda-diaria                                                  │
         └── C-11 admin-catalogo-y-bloqueos                                            │
@@ -56,13 +56,17 @@ GATE 1: C-01 ✓                            ← PRIMER FORK (3 paralelos)
   → C-05 servidor-http-y-router          [Agente C]
 
 GATE 2: C-05 ✓
+  → C-05b api-minima-turnos-openapi      [Agente C]
   → C-07 endpoints-consulta              [Agente C]
   → C-11 admin-catalogo-y-bloqueos       [Agente B]
+
+  Nota: C-05b y C-07 comparten el router HTTP de C-05; registrar rutas en módulos
+  separados o serializar su implementación para evitar conflictos.
 
 GATE 3: C-02 ✓
   → C-04 asignacion-de-sillon            [Agente A]
 
-GATE 4: C-03 + C-04 + C-05 ✓
+GATE 4: C-03 + C-04 + C-05b ✓
   → C-06 endpoint-crear-turno            [Agente A]
 
 GATE 5: C-06 ✓
@@ -92,6 +96,8 @@ C-01 → C-02 → C-04 → C-06 → C-08 → C-09
 
 \* La rama de recordatorios (`C-12 → C-13`) es casi-crítica: no bloquea `C-09`, pero el MVP no está "lanzable" sin recordatorios (stub).
 
+`C-05b` es un prerrequisito paralelo de `C-06` (junto con `C-02`/`C-04`): no alarga el camino crítico si se ejecuta mientras avanza la rama de agenda.
+
 ### Plan óptimo con 3 agentes
 
 ```
@@ -99,8 +105,8 @@ Paso │ Agente A (Dominio Core)     │ Agente B (Datos y Catálogo)  │ Agent
 ─────┼────────────────────────────┼─────────────────────────────┼────────────────────────────
   1  │ C-01 crear-turno-sin-solap.│             —               │            —
   2  │ C-02 franjas-y-bloqueos    │ C-03 pacientes-sin-login    │ C-05 servidor-y-router
-  3  │ C-04 asignacion-de-sillon  │ C-11 admin-catalogo         │ C-07 endpoints-consulta
-  4  │ C-06 endpoint-crear-turno  │             —               │            —
+  3  │ C-04 asignacion-de-sillon  │ C-11 admin-catalogo         │ C-05b api-minima-openapi
+  4  │ C-06 endpoint-crear-turno  │             —               │ C-07 endpoints-consulta
   5  │ C-08 cancelar-turno        │ C-12 recordatorios-modelo   │ C-10 agenda-diaria
   6  │ C-09 reprogramar-turno     │ C-13 recordatorios-job-stub │            —
 ```
@@ -133,7 +139,7 @@ Paso │ Agente A (Dominio Core)     │ Agente B (Datos y Catálogo)  │ Agent
 
 ---
 
-## FASE 1 — Reglas de agenda, pacientes y disponibilidad
+## FASE 1 — Reglas de agenda, pacientes y API base
 
 > C-02, C-03 y C-05 pueden proponerse en paralelo una vez archivado C-01. C-04 depende de C-02.
 
@@ -173,7 +179,7 @@ Paso │ Agente A (Dominio Core)     │ Agente B (Datos y Catálogo)  │ Agent
   - `infrastructure/http/server.js`: `node:http` + router por método/ruta, parseo/serialización JSON, manejo central de errores (`400`/`404`/`409`/`422`), CORS mínimo de desarrollo
   - `src/index.js`: lee env (`PORT`, `TZ`) y levanta el server; wiring de repos in-memory + servicios
   - `GET /health` → `200 { status: "ok" }`
-  - Catálogo de códigos de error por dominio: `PROFESIONAL_OCUPADO`, `SILLON_OCUPADO`, `PACIENTE_OCUPADO`, `FUERA_DE_FRANJA`, `FECHA_EN_PASADO`
+  - Catálogo de códigos de error por dominio: `PROFESIONAL_OCUPADO`, `SILLON_OCUPADO`, `PACIENTE_OCUPADO`, `FUERA_DE_FRANJA`, `FECHA_EN_PASADO`, `REFERENCIA_INEXISTENTE`, `DURACION_INVALIDA`
   - Tests: smoke del server (health, 404, JSON malformado)
 - **Dependencias**: C-01
 - **Governance**: BAJO
@@ -182,6 +188,27 @@ Paso │ Agente A (Dominio Core)     │ Agente B (Datos y Catálogo)  │ Agent
   - `knowledge-base/08_arquitectura_propuesta.md` §Estructura de directorios, §Variables de entorno
   - `knowledge-base/07_flujos_principales.md` §Casos de error
   - `knowledge-base/03_actores_y_roles.md` §Rutas públicas
+
+### [C-05b] `api-minima-turnos-openapi`
+- **Estado**: `[ ]` pendiente (change intermedio, entre C-05 y C-06)
+- **Scope**: Corte vertical mínimo de API HTTP para crear turnos, documentado y ejecutable sin las dependencias de C-02/C-03/C-04.
+  - `POST /turnos` con `pacienteId`, `profesionalId`, `sillonId`, `prestacionId`, `fechaHoraInicio` (ISO 8601 con offset) y `canalReserva` opcional (`ONLINE` por defecto, o `RECEPCION`); delega en `turnosService.crearTurno` y responde `201 { turno }`
+  - IDs explícitos: NO resuelve paciente por teléfono (C-03) ni asigna sillón automáticamente (C-04)
+  - Validación de borde + mapeo de errores: `400 DATOS_INVALIDOS`, `409` solapamientos, `422 REFERENCIA_INEXISTENTE`/`DURACION_INVALIDA`/`FECHA_EN_PASADO`, `500` inesperado; cuerpo `{ error: { code, message } }`
+  - `GET /openapi.json` con OpenAPI 3.0.3 y `GET /docs` con Swagger UI por CDN (sin paquetes npm)
+  - Seed de demostración con IDs estables y datos ficticios para que los ejemplos de OpenAPI sean invocables
+  - Tests HTTP E2E con `node:test` + `fetch` nativo y reloj inyectado
+  - **No incluye**: auth/RBAC (C-15), persistencia real (C-16), auto-asignación de sillón (C-04), resolución de paciente (C-03), franjas/bloqueos (C-02), cancelar/reprogramar (C-08/C-09), recordatorios (C-12/C-13), UI de producto
+- **Dependencias**: C-01, C-05
+- **Governance**: MEDIO
+- **Leer antes**:
+  - `knowledge-base/02_descripcion_general.md` §API REST
+  - `knowledge-base/07_flujos_principales.md` §Flujo 1, §Casos de error
+  - `knowledge-base/08_arquitectura_propuesta.md` §Estructura de directorios, §Variables de entorno, §Seguridad
+  - `knowledge-base/04_modelo_de_datos.md` §Turno
+  - `knowledge-base/05_reglas_de_negocio.md` §Turnos (RN-TU-01..09)
+  - `knowledge-base/03_actores_y_roles.md` §Rutas públicas
+  - `knowledge-base/10_preguntas_abiertas.md` (asignación de sillón — pregunta Alta, resuelta acá con `sillonId` explícito)
 
 ---
 
@@ -204,13 +231,13 @@ Paso │ Agente A (Dominio Core)     │ Agente B (Datos y Catálogo)  │ Agent
 
 ### [C-06] `endpoint-crear-turno`
 - **Estado**: `[ ]` pendiente
-- **Scope**: Exponer la creación de turnos por HTTP (online y recepción).
-  - `POST /turnos` — acepta `nombre`, `telefono`, `prestacionId`, `profesionalId`, `fechaHoraInicio`, `canalReserva`
+- **Scope**: Exponer la creación de turnos por HTTP (online y recepción), **extendiendo el handler mínimo de C-05b**.
+  - `POST /turnos` — acepta `nombre`, `telefono`, `prestacionId`, `profesionalId`, `fechaHoraInicio`, `canalReserva`; reemplaza los IDs explícitos de C-05b por la resolución de paciente (C-03) y la asignación de sillón (C-04)
   - Flujo: resuelve paciente (C-03) → valida reglas (C-01/C-02) → asigna sillón (C-04) → persiste `RESERVADO` → `201 { turno }`
   - Canal `RECEPCION` (US-006) usando el mismo endpoint y reglas
   - Errores: `409` solapamiento, `422` fuera de franja / fecha en pasado / sin sillón, `400` datos inválidos
   - Tests: reserva online E2E, carga manual, cada error de negocio con su código
-- **Dependencias**: C-05, C-03, C-04
+- **Dependencias**: C-05b, C-03, C-04 (C-05b ya depende de C-05)
 - **Governance**: MEDIO
 - **Leer antes**:
   - `knowledge-base/02_descripcion_general.md` §API REST
@@ -225,6 +252,7 @@ Paso │ Agente A (Dominio Core)     │ Agente B (Datos y Catálogo)  │ Agent
   - `GET /prestaciones` → prestaciones activas y duraciones
   - `GET /profesionales` → profesionales activos
   - `GET /turnos/:id` → detalle del turno; `404` si no existe
+  - Reemplaza el seed de demostración de C-05b por endpoints de catálogo reales
   - Tests: disponibilidad con/sin filtros, turno inexistente, listado de catálogo
 - **Dependencias**: C-05, C-02
 - **Governance**: BAJO
