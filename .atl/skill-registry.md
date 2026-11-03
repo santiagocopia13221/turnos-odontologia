@@ -5,7 +5,13 @@
 See `_shared/skill-resolver.md` for the full resolution protocol.
 
 > Project: `turnos-odontologia` (Node.js API HTTP + in-memory DB + node:test; dominio: turnos odontológicos).
-> No `state.skills.installed` skills (the user chose to install none of the recommended ones), and no project-level skills dirs exist. The skills below are the user-level (global) skills found in `~/.config/opencode/skills/`.
+> No hay skills de orquestación instaladas vía `state.skills.installed`, pero existe una skill de dominio a nivel proyecto en `.opencode/skills/`. Las skills de `## User Skills` son las globales de `~/.config/opencode/skills/`.
+
+## Project Skills
+
+| Skill | Propósito | Ubicación | Cuándo usarla |
+|-------|-----------|-----------|---------------|
+| `revisor-escenarios-turnos` | Revisar los escenarios de la spec de un change contra `knowledge-base/05_reglas_de_negocio.md`; detectar reglas ambiguas, contradicciones y casos de borde faltantes, y proponer escenarios CUANDO/ENTONCES con la regla RN citada. | `.opencode/skills/revisor-escenarios-turnos/SKILL.md` | Al proponer, revisar, implementar o archivar un change que toque turnos, solapamientos, disponibilidad, sillones, prestaciones, cancelación, reprogramación, reserva online o recordatorios. También antes de escribir tests de escenarios. |
 
 ## User Skills
 
@@ -77,6 +83,16 @@ Pre-digested rules per skill. Delegators copy matching blocks into sub-agent pro
 - If orchestrated (state file exists): write ONLY `state.kb`; source = `"ingest"` (A) / `"interactive"` (B); mixed run → dominant origin wins.
 - If a top-level `discovery` section exists, read it to pre-fill fields (don't re-ask) — see state-contract §5.
 
+### revisor-escenarios-turnos
+- Review change spec scenarios against `knowledge-base/05_reglas_de_negocio.md`; output is a report, do not edit the spec unless asked.
+- Inputs: change spec path (`openspec/changes/<change>/specs/**/spec.md`) + business rules path. Optional: proposal/design, KB 09/10, KB 04, main spec.
+- Inventory every in-scope RN; mark out-of-scope rules explicitly instead of counting them as findings.
+- Mandatory edge cases: contiguous (`fin == inicio`, RN-TU-08), cancelled (RN-TU-09), past date (RN-TU-07), invalid/manual duration (RN-TU-04/PR-01/PR-03), nonexistent reference (RN-PR-02/SI-03/GL-02), plus franja, bloqueo, states, 24h window, reschedule, timezone, config, reminders, online patient, single active sillón.
+- Every finding MUST cite at least one RN; otherwise it goes to "Decisiones abiertas" or is discarded.
+- Propose one behavior per scenario as **CUANDO** / **ENTONCES**, with fictional data, ISO 8601 offsets, existing state names and error codes; no implementation details.
+- Never invent unresolved domain decisions (sillón auto/manual SU-05, patient token IN-02): list them as open questions.
+- Report structure: RN inventory, findings table (tipo/severidad/RN/ubicación/hallazgo/escenario), open decisions, edge-case coverage, verdict.
+
 ### roadmap-generator
 - Generate ONE file: `CHANGES.md` at the project ROOT (never inside `openspec/`).
 - Pre-checks: `knowledge-base/` exists + has the 10 canonical + `openspec/` exists; else abort with a clear message.
@@ -112,6 +128,6 @@ Pre-digested rules per skill. Delegators copy matching blocks into sub-agent pro
 
 | File | Path | Notes |
 |------|------|-------|
-| (none found) | — | No `AGENTS.md` / `CLAUDE.md` / `.cursorrules` / `GEMINI.md` / `copilot-instructions.md` at the project root yet. Phase 5 (`agents-md-generator`) will generate `AGENTS.md`/`CLAUDE.md` later. |
+| AGENTS.md / CLAUDE.md | `AGENTS.md`, `CLAUDE.md` | Instrucciones canónicas del proyecto (copias idénticas): stack, KB, skills, roadmap, reglas duras y flujo. Leerlos primero. |
 
 Read the convention files listed above for project-specific patterns and rules. All referenced paths have been extracted — no need to read index files to discover more.

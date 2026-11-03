@@ -43,19 +43,26 @@ La fuente de verdad del dominio vive en `knowledge-base/`. **Leé el archivo rel
 
 ## Skills Disponibles
 
-Fuente de verdad: `.atl/skill-registry.md` (generado por `skill-registry`). En este proyecto **no se instalaron skills de dominio**; están disponibles las skills globales de orquestación/SDD.
+Fuente de verdad: `.atl/skill-registry.md` (generado por `skill-registry`). Además de las skills globales de orquestación/SDD, el proyecto tiene una skill de dominio propia.
 
 | Agente | Rol | Skills que carga |
 |--------|-----|------------------|
 | **Orquestación / SDD** | Fundación, KB, roadmap, reglas, OPSX | `active-orchestrator`, `kb-creator`, `roadmap-generator`, `agents-md-generator`, `skill-registry` |
 | **Discovery / Research** | Investigación de mercado y competidores | `discovery-research`, `web-scraper` |
-| **Backend Core** | Dominio + API Node | — (sin skill de dominio instalada) |
-| **QA / Testing** | Tests con `node:test` | — (sin skill de dominio instalada) |
+| **Backend Core** | Dominio + API Node | — (sin skill de implementación específica) |
+| **QA / Testing y revisión de specs** | Escenarios de negocio, tests y cobertura de reglas | `revisor-escenarios-turnos` |
 | **Meta / Skills** | Crear/optimizar skills | `skill-creator`, `find-skills` |
 
 Cargá la skill correspondiente al contexto ANTES de escribir código.
 
-> Los compact rules de cada skill los resuelve el orquestador desde `.atl/skill-registry.md` (generado por `skill-registry`; no versionado — no está en el repo). Esta tabla solo mapea skill→rol.
+> Los compact rules de cada skill los resuelve el orquestador desde `.atl/skill-registry.md` (generado por `skill-registry`). Esta tabla solo mapea skill→rol.
+
+### `revisor-escenarios-turnos` (skill del proyecto)
+
+- **Cuándo usarla**: al proponer (`/opsx:propose`), revisar, implementar o archivar un change que toque turnos, solapamientos, disponibilidad, sillones, prestaciones, cancelación, reprogramación, reserva online o recordatorios. También antes de escribir tests de escenarios.
+- **Qué necesita**: la ruta de la spec del change (`openspec/changes/<change>/specs/**/spec.md`) y `knowledge-base/05_reglas_de_negocio.md`. Opcional: `proposal.md`/`design.md` del change, `09_decisiones_y_supuestos.md`, `10_preguntas_abiertas.md` y `04_modelo_de_datos.md`.
+- **Cómo revisar su resultado**: cada hallazgo debe citar una regla `RN-XX-NN`; cada escenario CUANDO/ENTONCES debe ser verificable (pass/fail sin interpretación); las decisiones no resueltas deben ir a "Decisiones abiertas", no afirmarse; los datos deben ser ficticios; y debe distinguir "fuera de alcance" de "faltante". El veredicto debe ser BLOQUEANTE, CON OBSERVACIONES u OK.
+- **Ubicación**: `.opencode/skills/revisor-escenarios-turnos/SKILL.md`.
 
 ---
 
@@ -108,5 +115,7 @@ El plan de implementación completo está en [CHANGES.md](CHANGES.md). Resumen:
 4. Implementar las tasks (cargando skills)       → respetando las reglas duras
 5. /opsx:archive C-NN-nombre + marcar [x]        → cerrar el change
 ```
+
+> En changes de turnos, ejecutá `revisor-escenarios-turnos` sobre la spec antes de implementar y revisá el informe con los criterios de arriba.
 
 Aplicar TODAS las reglas duras en cada paso. Ante conflicto entre la KB y este archivo, las reglas duras prevalecen.
