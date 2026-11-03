@@ -9,8 +9,8 @@
 ## 2. Validación de entrada y errores HTTP
 
 - [ ] 2.1 Implementar el validador de borde para cuerpo JSON, campos obligatorios, tipos, `canalReserva` (`ONLINE`/`RECEPCION`) y `fechaHoraInicio` ISO 8601 con offset; verificación: tests cubren JSON malformado, campo faltante, tipo incorrecto, fecha sin offset, fecha inválida y canal inválido, todos con `400 DATOS_INVALIDOS`
-- [ ] 2.2 Implementar el mapeo de errores a HTTP con cuerpo `{ error: { code, message } }`; verificación: tests cubren `409` para los tres solapamientos, `422` para `REFERENCIA_INEXISTENTE`/`DURACION_INVALIDA`/`FECHA_EN_PASADO` y `500` para un error inesperado
-- [ ] 2.3 Implementar el serializador de turno con fechas ISO 8601, referencias, estado, canal y tiempos de creación/actualización; verificación: test confirma que las fechas son strings ISO y que `fechaHoraFin` refleja la duración de la prestación
+- [ ] 2.2 Implementar el mapeo de errores a HTTP con cuerpo `{ error: { code, message } }`; verificación: tests cubren `409` para los tres solapamientos, `422` para `REFERENCIA_INEXISTENTE`/`DURACION_INVALIDA`/`FECHA_EN_PASADO` (este último con reloj inyectado fijo) y `500` para un error inesperado
+- [ ] 2.3 Implementar el serializador de turno con fechas ISO 8601, referencias, estado, canal y tiempos de creación/actualización; verificación: test confirma que las fechas son strings UTC con milisegundos y sufijo `Z` (`toISOString()`) y que `fechaHoraFin` refleja la duración de la prestación
 
 ## 3. Endpoint `POST /turnos`
 
@@ -21,14 +21,14 @@
 
 ## 4. OpenAPI y Swagger UI
 
-- [ ] 4.1 Crear el documento OpenAPI 3.0.3 en `src/infrastructure/http/openapi.js` con `POST /turnos`, esquemas de request/response y respuestas `201`, `400`, `409`, `422` y `500`; verificación: `GET /openapi.json` responde `200` JSON y contiene `paths./turnos.post` con esos códigos
+- [ ] 4.1 Crear el documento OpenAPI 3.0.3 en `src/infrastructure/http/openapi.js` con `POST /turnos`, esquemas de request/response y respuestas `201`, `400`, `409`, `422` y `500`; el ejemplo de request calcula `fechaHoraInicio` desde el reloj inyectado (día siguiente a las 10:00 con offset `-03:00`); verificación: `GET /openapi.json` responde `200` JSON y contiene `paths./turnos.post` con esos códigos y una fecha futura respecto del reloj inyectado
 - [ ] 4.2 Servir `GET /docs` con una página HTML que cargue Swagger UI desde CDN y apunte a `/openapi.json`; verificación: test confirma `200`, `Content-Type` HTML y referencias a Swagger UI y `/openapi.json`
-- [ ] 4.3 Documentar en OpenAPI los IDs estables del seed de demostración como ejemplos; verificación: test compara los ejemplos con los IDs sembrados y ejecuta el ejemplo documentado contra el servidor con resultado `201`
+- [ ] 4.3 Documentar en OpenAPI los IDs estables del seed de demostración como ejemplos; verificación: test compara los ejemplos con los IDs sembrados y ejecuta el ejemplo documentado contra el servidor con reloj inyectado fijo, obteniendo `201` y fechas UTC exactas
 
 ## 5. Integración y regresión
 
 - [ ] 5.1 Correr la suite completa con `node --test`; verificación: todos los tests de C-01 y C-05b pasan sin fallos
-- [ ] 5.2 Hacer un smoke manual del servidor: `POST /turnos` con el ejemplo de OpenAPI, `GET /openapi.json` y `GET /docs`; verificación: el turno se crea, el contrato descarga y la página de documentación responde
+- [ ] 5.2 Hacer un smoke manual del servidor: `POST /turnos` con el ejemplo de OpenAPI, `GET /openapi.json` y `GET /docs`; verificación: el ejemplo publicado es futuro respecto del reloj del servidor, el turno se crea, el contrato descarga y la página de documentación responde
 - [ ] 5.3 Confirmar que no se modificaron artefactos ni archivos del change archivado C-01; verificación: `git diff` no muestra cambios en `openspec/changes/archive/2026-10-13-c-01-...` ni en `src/domain`/`tests/` de C-01
 
 ## Workflow follow-up

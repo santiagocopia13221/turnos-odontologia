@@ -54,7 +54,7 @@ El handler valida forma y tipos antes de llamar a `turnosService.crearTurno`. La
 
 ### D4 - Fecha ISO 8601 con offset obligatorio
 
-`fechaHoraInicio` debe ser una fecha-hora ISO 8601 con offset explícito (`Z` o `±HH:MM`). Se valida con una expresión regular y `Date.parse`; se rechazan fechas sin offset, fechas solas y valores no parseables. Esto evita que el resultado dependa de la zona horaria del proceso y prepara el terreno para RN-GL-01.
+`fechaHoraInicio` debe ser una fecha-hora ISO 8601 con offset explícito (`Z` o `±HH:MM`). Se valida con una expresión regular y `Date.parse`; se rechazan fechas sin offset, fechas solas y valores no parseables. Esto evita que el resultado dependa de la zona horaria del proceso y prepara el terreno para RN-GL-01. El reloj (`ahora`) es inyectable y los tests lo fijan en un instante concreto (por ejemplo `2026-11-03T12:00:00-03:00`); las fechas de ejemplo de los escenarios son posteriores a ese instante y no dependen del reloj real.
 
 *Alternativa considerada*: aceptar cualquier string que `new Date()` entienda. **Rechazada** porque acepta formatos ambiguos y depende del TZ del servidor.
 
@@ -73,13 +73,13 @@ El cuerpo de error es uniforme: `{ "error": { "code": "...", "message": "..." } 
 
 ### D6 - Serialización explícita del turno
 
-El handler no devuelve el objeto de dominio crudo. Un serializador convierte `Date` a ISO 8601 (`toISOString()`), expone `id`, referencias, `fechaHoraInicio`, `fechaHoraFin`, `estado`, `canalReserva`, `creadoEn` y `actualizadoEn`, y omite campos internos. La respuesta usa instantes UTC (`Z`); la representación local AR se resolverá en C-02/C-07.
+El handler no devuelve el objeto de dominio crudo. Un serializador convierte `Date` a ISO 8601 (`toISOString()`), expone `id`, referencias, `fechaHoraInicio`, `fechaHoraFin`, `estado`, `canalReserva`, `creadoEn` y `actualizadoEn`, y omite campos internos. La respuesta usa instantes UTC (`Z`) con milisegundos, tal como los emite `Date.prototype.toISOString()` (por ejemplo `2026-11-10T12:30:00.000Z`); no se emite offset `-03:00` en la salida. La representación local AR se resolverá en C-02/C-07.
 
 *Alternativa considerada*: `JSON.stringify(turno)` directo. **Rechazada** porque acopla el contrato a la forma interna y a cómo `JSON` serializa `Date`.
 
 ### D7 - OpenAPI 3.0.3 escrito a mano
 
-El documento se mantiene como un objeto JavaScript en `infrastructure/http/openapi.js` y se sirve en `GET /openapi.json`. Se elige OpenAPI 3.0.3 por compatibilidad amplia con Swagger UI y porque no se necesitan features de 3.1. Los ejemplos usan los IDs estables del seed de demostración.
+El documento se mantiene como un objeto JavaScript en `infrastructure/http/openapi.js` y se sirve en `GET /openapi.json`. Se elige OpenAPI 3.0.3 por compatibilidad amplia con Swagger UI y porque no se necesitan features de 3.1. Los ejemplos usan los IDs estables del seed de demostración. El ejemplo de request no se congela en el archivo: al servir el documento se calcula `fechaHoraInicio` a partir del reloj inyectado (`ahora`) como el día siguiente a las 10:00 con offset `-03:00`, de modo que el ejemplo publicado sea siempre futuro, también en el servidor de demostración con reloj real. El resto del documento es estático.
 
 *Alternativa considerada*: OpenAPI 3.1. **Rechazada** por compatibilidad y porque no aporta nada al contrato mínimo. *Alternativa considerada*: generar el documento con anotaciones/JSDoc. **Rechazada** porque requeriría dependencias o un build step (S1).
 
@@ -91,7 +91,7 @@ El documento se mantiene como un objeto JavaScript en `infrastructure/http/opena
 
 ### D9 - Tests HTTP deterministas
 
-Los tests levantan el servidor en el puerto `0` (efímero), inyectan `ahora` con un instante fijo y usan `fetch` nativo de Node 20. El servidor se cierra en `t.after`. No se usa un puerto fijo ni se depende de la CDN. Se cubren: camino feliz, `400`, `409`, `422`, `/openapi.json`, `/docs` y el ejemplo documentado.
+Los tests levantan el servidor en el puerto `0` (efímero), inyectan `ahora` con un instante fijo (por ejemplo `2026-11-03T12:00:00-03:00`) y usan `fetch` nativo de Node 20. El servidor se cierra en `t.after`. No se usa un puerto fijo ni se depende de la CDN. Se cubren: camino feliz, `400`, `409`, `422`, `/openapi.json`, `/docs` y el ejemplo documentado; el test del ejemplo verifica que, con el reloj fijo, el `fechaHoraInicio` publicado (`2026-11-04T10:00:00-03:00`) es futuro y que el `POST` responde `201` con fechas UTC exactas.
 
 *Alternativa considerada*: tests unitarios del handler sin servidor. **Rechazada** como única cobertura porque no validan status, headers ni serialización real.
 
@@ -105,7 +105,8 @@ C-05 ya resuelve `PORT`/`TZ` desde env. Este change no agrega configuración: el
 - **[El seed de demostración duplica datos de C-01 y puede desincronizarse]** → Mitigación: datos ficticios, IDs centralizados y un test que ejecuta el ejemplo publicado; C-07 reemplaza el seed por endpoints de catálogo.
 - **[La CDN de Swagger UI no está disponible sin internet] `/docs` no renderiza** → Mitigación: `/openapi.json` sigue disponible; se documenta la limitación. La API no depende de la CDN.
 - **[El OpenAPI escrito a mano se desincroniza del handler]** → Mitigación: test que verifica la operación, los esquemas y las respuestas principales; C-06 debe actualizar ambos.
-- **[Fechas devueltas en UTC pueden confundir a un cliente que espera `-03:00`]** → Mitigación: documentar que son instantes ISO 8601; la representación AR se resuelve en C-02/C-07.
+- **[El ejemplo con fecha relativa puede quedar desfasado respecto del reloj real]** → Mitigación: el ejemplo se recalcula en cada `GET /openapi.json` desde el mismo reloj inyectado; los tests lo fijan para obtener un resultado determinista.
+- **[Fechas devueltas en UTC pueden confundir a un cliente que espera `-03:00`]** → Mitigación: el contrato fija el formato exacto (`toISOString()`, UTC con milisegundos y `Z`); la representación AR se resuelve en C-02/C-07.
 - **[Endpoint sin autenticación]** → Mitigación: es un corte de desarrollo/demo; C-15 lo protege. C-05 puede limitar el bind a localhost por defecto.
 - **[Datos en memoria se pierden al reiniciar]** → Aceptado en el MVP (DD-01); C-16 agrega persistencia sin cambiar el contrato.
 - **[`422` para referencias inexistentes puede no coincidir con la expectativa de C-06]** → Mitigación: decisión explícita y documentada; si C-06 cambia el contrato, se actualiza el spec y el OpenAPI.

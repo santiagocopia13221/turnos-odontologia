@@ -8,12 +8,12 @@ Definir el contrato HTTP mínimo para crear turnos con referencias explícitas y
 
 ### Requirement: Creación de turno por HTTP
 
-El sistema SHALL aceptar `POST /turnos` con un cuerpo JSON que identifique paciente, profesional, sillón, prestación y `fechaHoraInicio`, y SHALL responder `201 Created` con el turno persistido en estado `RESERVADO`, su `id` opaco, referencias, inicio, fin derivado y canal.
+El sistema SHALL aceptar `POST /turnos` con un cuerpo JSON que identifique paciente, profesional, sillón, prestación y `fechaHoraInicio`, y SHALL responder `201 Created` con el turno persistido en estado `RESERVADO`, su `id` opaco, referencias, inicio, fin derivado y canal. Las fechas de la respuesta (`fechaHoraInicio`, `fechaHoraFin`) SHALL serializarse como instantes ISO 8601 en UTC con milisegundos y sufijo `Z`, con el formato de `Date.prototype.toISOString()` (por ejemplo `2026-11-10T12:30:00.000Z`); no se emite offset `-03:00` en la salida.
 
 #### Scenario: Reserva exitosa
 
-- **WHEN** se envía `POST /turnos` con IDs existentes, una prestación de 30 min y `fechaHoraInicio = 2026-10-20T09:00:00-03:00`
-- **THEN** responde `201` con `estado = RESERVADO`, `fechaHoraFin` equivalente a `2026-10-20T09:30:00-03:00` expresada como instante ISO 8601 y un `id` no vacío
+- **WHEN** el servidor usa un reloj inyectado fijo en `2026-11-03T12:00:00-03:00` y se envía `POST /turnos` con IDs existentes, una prestación de 30 min y `fechaHoraInicio = 2026-11-10T09:00:00-03:00`
+- **THEN** responde `201` con `estado = RESERVADO`, `fechaHoraInicio = "2026-11-10T12:00:00.000Z"`, `fechaHoraFin = "2026-11-10T12:30:00.000Z"` y un `id` no vacío
 
 ### Requirement: Referencias explícitas de paciente y sillón
 
@@ -35,7 +35,7 @@ El endpoint SHALL aceptar `fechaHoraInicio` como fecha-hora ISO 8601 que incluya
 
 #### Scenario: Fecha sin offset
 
-- **WHEN** se envía `fechaHoraInicio = "2026-10-20T09:00:00"` sin offset
+- **WHEN** se envía `fechaHoraInicio = "2026-11-10T10:00:00"` sin offset
 - **THEN** responde `400` con código `DATOS_INVALIDOS`
 
 #### Scenario: Fecha inválida
@@ -87,7 +87,7 @@ El sistema SHALL traducir `REFERENCIA_INEXISTENTE`, `DURACION_INVALIDA` y `FECHA
 
 #### Scenario: Fecha en el pasado
 
-- **WHEN** `fechaHoraInicio` es anterior al reloj del servidor
+- **WHEN** el servidor usa un reloj inyectado fijo en `2026-11-03T12:00:00-03:00` y se envía `fechaHoraInicio = 2026-11-03T11:59:59-03:00`
 - **THEN** responde `422` con código `FECHA_EN_PASADO`
 
 #### Scenario: Duración inválida
@@ -120,7 +120,7 @@ El endpoint SHALL responder `400 Bad Request` con código `DATOS_INVALIDOS` cuan
 
 ### Requirement: Documento OpenAPI publicado
 
-El sistema SHALL servir `GET /openapi.json` con un documento OpenAPI 3.0.3 que describa `POST /turnos`, sus esquemas de entrada y salida y las respuestas `201`, `400`, `409`, `422` y `500`.
+El sistema SHALL servir `GET /openapi.json` con un documento OpenAPI 3.0.3 que describa `POST /turnos`, sus esquemas de entrada y salida y las respuestas `201`, `400`, `409`, `422` y `500`. El ejemplo de request SHALL recalcularse en cada respuesta a partir del reloj inyectado, sin depender de la fecha en que se escribió el documento.
 
 #### Scenario: Descarga del contrato
 
@@ -138,9 +138,9 @@ El sistema SHALL servir `GET /docs` como una página HTML que cargue Swagger UI 
 
 ### Requirement: IDs de demostración utilizables
 
-El servidor de demostración SHALL sembrar datos ficticios con IDs estables y SHALL documentarlos en los ejemplos de OpenAPI, de modo que una persona pueda invocar el endpoint sin inspeccionar el código.
+El servidor de demostración SHALL sembrar datos ficticios con IDs estables y SHALL documentarlos en los ejemplos de OpenAPI, de modo que una persona pueda invocar el endpoint sin inspeccionar el código. El ejemplo de `POST /turnos` SHALL usar un `fechaHoraInicio` calculado respecto del reloj del servidor (el día siguiente a las 10:00 con offset `-03:00`), de modo que el ejemplo publicado sea siempre futuro, también con el reloj real.
 
 #### Scenario: Ejemplo documentado funciona
 
-- **WHEN** se envía el ejemplo de `POST /turnos` publicado en OpenAPI contra el servidor de demostración
-- **THEN** responde `201` y crea un turno válido
+- **WHEN** el servidor usa un reloj inyectado fijo en `2026-11-03T12:00:00-03:00`, se obtiene el ejemplo de `POST /turnos` publicado en `GET /openapi.json` (con `fechaHoraInicio = 2026-11-04T10:00:00-03:00`) y se lo envía tal cual
+- **THEN** responde `201` y crea un turno válido con `fechaHoraInicio = "2026-11-04T13:00:00.000Z"`
