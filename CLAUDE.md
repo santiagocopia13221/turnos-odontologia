@@ -66,6 +66,16 @@ Cargá la skill correspondiente al contexto ANTES de escribir código.
 
 ---
 
+## MCP
+
+- **Propósito:** Consultar documentación actualizada de librerías (p. ej. Swagger UI y OpenAPI) para preparar o validar decisiones de diseño que dependan de una librería o estándar externo.
+- **Cuándo usarlo:** Al preparar o validar decisiones de diseño que dependan de una librería o estándar externo, p. ej. Swagger UI y OpenAPI en C-05b.
+- **Límites:** Solo lectura de documentación; datos siempre ficticios; no pegar secretos ni datos de pacientes; no sustituye a las fuentes oficiales: lo que devuelva se contrasta con la documentación oficial.
+- **Registro:** El MCP NO se registra como skill en `.atl/skill-registry.md`.
+- **Configuración:** Definido en `opencode.json` en la raíz del repo (`https://mcp.context7.com/mcp`, type `remote`).
+
+---
+
 ## Roadmap de Changes
 
 El plan de implementación completo está en [CHANGES.md](CHANGES.md). Resumen:
