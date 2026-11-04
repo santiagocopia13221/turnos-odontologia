@@ -1,7 +1,9 @@
 'use strict';
 
 const { crearServidor } = require('./infrastructure/http/server');
+const { registrarRutasTurnos } = require('./infrastructure/http/rutasTurnos');
 const { crearRepositorios, sembrar } = require('./infrastructure/repos/inMemoryRepos');
+const { sembrarDemo } = require('./infrastructure/repos/demoSeed');
 
 function resolverPuerto(puerto) {
   const valor = puerto !== undefined && puerto !== null ? puerto : process.env.PORT;
@@ -121,7 +123,10 @@ async function iniciarServidor({
 }
 
 if (require.main === module) {
-  iniciarServidor()
+  const repositorios = crearRepositorios();
+  sembrarDemo(repositorios);
+
+  iniciarServidor({ repos: repositorios, rutas: [registrarRutasTurnos] })
     .then((handle) => {
       function cerrarYsalir() {
         handle
