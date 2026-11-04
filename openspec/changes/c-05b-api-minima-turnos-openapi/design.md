@@ -85,7 +85,7 @@ El documento se mantiene como un objeto JavaScript en `infrastructure/http/opena
 
 ### D8 - Swagger UI por CDN, solo en `/docs`
 
-`GET /docs` devuelve un HTML estático con CSS/JS de `swagger-ui-dist` desde una CDN pineada a una versión mayor, apuntando a `/openapi.json`. No se agrega ningún paquete npm. La página es solo documentación: si la CDN no está disponible, la API y `/openapi.json` siguen funcionando.
+`GET /docs` devuelve un HTML estático con CSS/JS de `swagger-ui-dist` desde unpkg usando la versión EXACTA `5.11.0` (archivos `swagger-ui.css` y `swagger-ui-bundle.js`), apuntando a `/openapi.json`. No se usa `swagger-ui-standalone-preset.js`. No se agrega ningún paquete npm. La página es solo documentación: si la CDN no está disponible, la API y `/openapi.json` siguen funcionando.
 
 *Alternativa considerada*: servir Swagger UI desde `node_modules` o vendorizarlo. **Rechazada** por S1 y para no sumar peso al repo. *Alternativa considerada*: una página HTML propia sin Swagger UI. **Rechazada** porque el pedido es Swagger/OpenAPI navegable.
 
@@ -98,6 +98,18 @@ Los tests levantan el servidor en el puerto `0` (efímero), inyectan `ahora` con
 ### D10 - Sin nuevas variables de entorno
 
 C-05 ya resuelve `PORT`/`TZ` desde env. Este change no agrega configuración: el seed de demostración es fijo y los IDs son constantes del módulo de demo. No se hardcodea puerto en el código de producción.
+
+### D11 - Duración enviada por el cliente
+
+El body no debe aceptar `duracionMinutos` enviado por el cliente. La duración se deriva siempre de la prestación (RN-TU-04, RN-PR-01). Si se envía `duracionMinutos`, la validación de borde responde `400` con código `DATOS_INVALIDOS` y no crea el turno.
+
+### D12 - Prelación de códigos en conflicto simultáneo
+
+Si profesional, sillón y paciente están ocupados a la vez en el mismo intervalo solicitado, la traducción de errores HTTP debe responder con el código del profesional primero, después el del sillón y por último el del paciente (orden de RN-TU-01, RN-TU-02 y RN-TU-03): `PROFESIONAL_OCUPADO`, luego `SILLON_OCUPADO`, luego `PACIENTE_OCUPADO`.
+
+### Decisión abierta - Referencias inactivas
+
+Las reglas RN-PR-02 y RN-SI-03 exigen prestación activa (`Prestacion.activo = true`) y sillón activo (`Sillon.activo = true`). El dominio hoy solo valida existencia. **Pregunta abierta:** ¿Quién valida `Prestacion.activo` y `Sillon.activo`, y con qué código de error? No existe código estable para el caso 'referencia inactiva'. Esto queda fuera de alcance de C-05b y debe resolverse antes del TPI.
 
 ## Risks / Trade-offs
 

@@ -17,7 +17,7 @@ El sistema SHALL aceptar `POST /turnos` con un cuerpo JSON que identifique pacie
 
 ### Requirement: Referencias explícitas de paciente y sillón
 
-El endpoint SHALL exigir `pacienteId` y `sillonId` en el cuerpo; NO DEBE resolver un paciente por teléfono ni elegir un sillón libre por su cuenta.
+El endpoint SHALL exigir `pacienteId` y `sillonId` en el cuerpo; NO DEBE resolver un paciente por teléfono ni elegir un sillón libre por su cuenta. Las referencias inactivas (`Prestacion.activo = false` y `Sillon.activo = false`) quedan fuera de alcance de C-05b (el dominio hoy solo valida existencia). Este caso debe resolverse antes del TPI.
 
 #### Scenario: Paciente o sillón omitidos
 
@@ -28,6 +28,16 @@ El endpoint SHALL exigir `pacienteId` y `sillonId` en el cuerpo; NO DEBE resolve
 
 - **WHEN** el `sillonId` enviado está ocupado en el intervalo solicitado
 - **THEN** responde `409` con código `SILLON_OCUPADO` y no busca otro sillón
+
+#### Scenario: Contigüidad por sillón (fin == inicio)
+
+- **WHEN** el servidor usa un reloj inyectado fijo en `2026-11-03T12:00:00-03:00` y existe un turno en el sillón `sillon-1` que termina en `2026-11-10T12:30:00-03:00`, y se envía `POST /turnos` con `sillonId = "sillon-1"`, IDs existentes, una prestación de 30 min y `fechaHoraInicio = 2026-11-10T12:30:00-03:00`
+- **THEN** responde `201` y crea el turno (el fin del turno anterior es exactamente igual al inicio del siguiente; contigüidad no es solapamiento)
+
+#### Scenario: Contigüidad por paciente (fin == inicio)
+
+- **WHEN** el servidor usa un reloj inyectado fijo en `2026-11-03T12:00:00-03:00` y el paciente `paciente-ana` tiene un turno que termina en `2026-11-10T12:30:00-03:00`, y se envía `POST /turnos` con `pacienteId = "paciente-ana"`, IDs existentes, una prestación de 30 min y `fechaHoraInicio = 2026-11-10T12:30:00-03:00`
+- **THEN** responde `201` y crea el turno (el fin del turno anterior es exactamente igual al inicio del siguiente; contigüidad no es solapamiento)
 
 ### Requirement: Fecha de inicio con offset explícito
 
@@ -59,7 +69,7 @@ El endpoint SHALL aceptar `canalReserva` con valores `ONLINE` o `RECEPCION`; si 
 
 ### Requirement: Solapamientos como conflicto HTTP
 
-El sistema SHALL traducir los errores de solapamiento del dominio a `409 Conflict`, conservando el código estable del dominio.
+El sistema SHALL traducir los errores de solapamiento del dominio a `409 Conflict`, conservando el código estable del dominio. Si profesional, sillón y paciente están ocupados a la vez en el mismo intervalo solicitado, se responde el código del profesional primero, después el del sillón y por último el del paciente (orden de RN-TU-01, RN-TU-02 y RN-TU-03).
 
 #### Scenario: Profesional ocupado
 
@@ -75,6 +85,11 @@ El sistema SHALL traducir los errores de solapamiento del dominio a `409 Conflic
 
 - **WHEN** el paciente ya tiene un turno solapado
 - **THEN** responde `409` con código `PACIENTE_OCUPADO`
+
+#### Scenario: Conflicto simultáneo con prelación de códigos
+
+- **WHEN** el servidor usa un reloj inyectado fijo en `2026-11-03T12:00:00-03:00`, para el mismo intervalo solicitado el profesional `prof-1` ya tiene un turno solapado, el sillón `sillon-1` ya está ocupado y el paciente `paciente-ana` ya tiene un turno solapado, y se envía `POST /turnos` con esos IDs y una prestación de 30 min
+- **THEN** responde `409` con código `PROFESIONAL_OCUPADO` (prelación: profesional primero, sillón después, paciente último según RN-TU-01, RN-TU-02 y RN-TU-03)
 
 ### Requirement: Errores semánticos de la reserva
 
@@ -117,6 +132,11 @@ El endpoint SHALL responder `400 Bad Request` con código `DATOS_INVALIDOS` cuan
 
 - **WHEN** falta `prestacionId` o `fechaHoraInicio`
 - **THEN** responde `400` con código `DATOS_INVALIDOS`
+
+#### Scenario: Duración enviada por el cliente
+
+- **WHEN** el servidor usa un reloj inyectado fijo en `2026-11-03T12:00:00-03:00` y se envía `POST /turnos` con IDs existentes, una prestación de 30 min, `fechaHoraInicio = 2026-11-10T09:00:00-03:00` e incluye el campo `duracionMinutos`
+- **THEN** responde `400` con código `DATOS_INVALIDOS` y no crea el turno (la duración sale siempre de la prestación, RN-TU-04 y RN-PR-01)
 
 ### Requirement: Documento OpenAPI publicado
 

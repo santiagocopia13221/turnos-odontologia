@@ -8,15 +8,15 @@
 
 ## 2. Validación de entrada y errores HTTP
 
-- [ ] 2.1 Implementar el validador de borde para cuerpo JSON, campos obligatorios, tipos, `canalReserva` (`ONLINE`/`RECEPCION`) y `fechaHoraInicio` ISO 8601 con offset; verificación: tests cubren JSON malformado, campo faltante, tipo incorrecto, fecha sin offset, fecha inválida y canal inválido, todos con `400 DATOS_INVALIDOS`
-- [ ] 2.2 Implementar el mapeo de errores a HTTP con cuerpo `{ error: { code, message } }`; verificación: tests cubren `409` para los tres solapamientos, `422` para `REFERENCIA_INEXISTENTE`/`DURACION_INVALIDA`/`FECHA_EN_PASADO` (este último con reloj inyectado fijo) y `500` para un error inesperado
+- [ ] 2.1 Implementar el validador de borde para cuerpo JSON, campos obligatorios, tipos, `canalReserva` (`ONLINE`/`RECEPCION`) y `fechaHoraInicio` ISO 8601 con offset; verificación: tests cubren JSON malformado, campo faltante, tipo incorrecto, fecha sin offset, fecha inválida y canal inválido, todos con `400 DATOS_INVALIDOS`. Agregar test: cuando el cuerpo incluye `duracionMinutos` → responde `400` con código `DATOS_INVALIDOS` y no crea el turno (RN-TU-04/RN-PR-01).
+- [ ] 2.2 Implementar el mapeo de errores a HTTP con cuerpo `{ error: { code, message } }`; verificación: tests cubren `409` para los tres solapamientos, prelación en conflicto simultáneo (profesional → sillón → paciente), `422` para `REFERENCIA_INEXISTENTE`/`DURACION_INVALIDA`/`FECHA_EN_PASADO` (este último con reloj inyectado fijo) y `500` para un error inesperado
 - [ ] 2.3 Implementar el serializador de turno con fechas ISO 8601, referencias, estado, canal y tiempos de creación/actualización; verificación: test confirma que las fechas son strings UTC con milisegundos y sufijo `Z` (`toISOString()`) y que `fechaHoraFin` refleja la duración de la prestación
 
 ## 3. Endpoint `POST /turnos`
 
 - [ ] 3.1 Implementar el handler que valida, llama a `turnosService.crearTurno` y responde `201` con el turno serializado; verificación: test E2E con el reloj inyectado crea un turno `RESERVADO` y devuelve un `id` no vacío
 - [ ] 3.2 Registrar `POST /turnos` en el router de C-05 sin crear un segundo servidor; verificación: test HTTP confirma `201` en el camino feliz y `404` en una ruta desconocida
-- [ ] 3.3 Verificar que el cuerpo exige `pacienteId` y `sillonId` y que no se reasigna sillón ni se resuelve paciente; verificación: tests confirman `400` al omitirlos y `409 SILLON_OCUPADO` cuando el sillón está ocupado
+- [ ] 3.3 Verificar que el cuerpo exige `pacienteId` y `sillonId` y que no se reasigna sillón ni se resuelve paciente; verificación: tests confirman `400` al omitirlos, `409 SILLON_OCUPADO` cuando el sillón está ocupado, **contigüidad por sillón (fin == inicio) → 201**, **contigüidad por paciente (fin == inicio) → 201**, y **conflicto simultáneo profesional/sillón/paciente con prelación `PROFESIONAL_OCUPADO`**. Las referencias inactivas (`Prestacion.activo`/`Sillon.activo`) quedan fuera de alcance de C-05b (sin validación ni código nuevo) y deben resolverse antes del TPI.
 - [ ] 3.4 Agregar el default `ONLINE` para `canalReserva` y rechazar valores fuera del enum; verificación: tests confirman el default y el `400` con valor inválido
 
 ## 4. OpenAPI y Swagger UI
