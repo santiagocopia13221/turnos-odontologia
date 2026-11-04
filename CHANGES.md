@@ -174,7 +174,7 @@ Paso │ Agente A (Dominio Core)     │ Agente B (Datos y Catálogo)  │ Agent
   - `knowledge-base/07_flujos_principales.md` §Flujo 1
 
 ### [C-05] `servidor-http-y-router`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (archivado 2026-11-04)
 - **Scope**: Infraestructura HTTP nativa y arranque.
   - `infrastructure/http/server.js`: `node:http` + router por método/ruta, parseo/serialización JSON, manejo central de errores (`400`/`404`/`409`/`422`), CORS mínimo de desarrollo
   - `src/index.js`: lee env (`PORT`, `TZ`) y levanta el server; wiring de repos in-memory + servicios
