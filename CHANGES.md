@@ -190,7 +190,7 @@ Paso │ Agente A (Dominio Core)     │ Agente B (Datos y Catálogo)  │ Agent
   - `knowledge-base/03_actores_y_roles.md` §Rutas públicas
 
 ### [C-05b] `api-minima-turnos-openapi`
-- **Estado**: `[ ]` pendiente (change intermedio, entre C-05 y C-06)
+- **Estado**: `[x]` completado (archivado 2026-11-04)
 - **Scope**: Corte vertical mínimo de API HTTP para crear turnos, documentado y ejecutable sin las dependencias de C-02/C-03/C-04.
   - `POST /turnos` con `pacienteId`, `profesionalId`, `sillonId`, `prestacionId`, `fechaHoraInicio` (ISO 8601 con offset) y `canalReserva` opcional (`ONLINE` por defecto, o `RECEPCION`); delega en `turnosService.crearTurno` y responde `201 { turno }`
   - IDs explícitos: NO resuelve paciente por teléfono (C-03) ni asigna sillón automáticamente (C-04)
