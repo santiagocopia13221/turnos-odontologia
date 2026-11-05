@@ -1,6 +1,8 @@
 # Informe de aplicación: Skills + MCP sobre el change C-05b
 Autor: Santiago Copia (trabajo individual). Repositorio: https://github.com/santiagocopia13221/turnos-odontologia
 
+> Nota de actualización (2026-11-05): este informe documenta la etapa de preparación del TP Skills + MCP. Las menciones a C-05b como "pendiente" o "no implementado" corresponden a ese momento. Después, dentro del TPI, C-05b se implementó, se verificó (69 tests en verde, prueba real en Swagger) y se archivó el 2026-11-04. La evidencia del uso de Context7 durante la implementación está en evidencias/mcp-context7-implementacion-c05b.md.
+
 ## 1. Qué se hizo
 Se integró una skill propia y un servidor MCP a la fundación del proyecto y se usaron para PREPARAR (no implementar) el change C-05b `api-minima-turnos-openapi` (POST /turnos, GET /openapi.json, GET /docs). C-05b sigue pendiente (`[ ]`) en CHANGES.md. Depende de C-05 (servidor HTTP), que todavía no está implementado.
 
